@@ -5,7 +5,6 @@ import flowops.service.EmailNotificationService;
 import flowops.service.NotificationService;
 import flowops.service.TaskService;
 import flowops.service.TaskManager;
-
 import java.time.LocalDate;
 
 public class Main {
@@ -31,7 +30,7 @@ public class Main {
 
         NotificationService notificationService = new EmailNotificationService();
         TaskService taskService = new TaskService(notificationService);
-        Task.TaskManager taskManager = new Task.TaskManager();
+        TaskManager taskManager = new TaskManager();
 
         Task task1 = new Task(
                 "Review contract",

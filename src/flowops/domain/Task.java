@@ -4,10 +4,6 @@ import flowops.exception.InvalidTaskOperationException;
 
 import java.time.LocalDate;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
 public class Task {
 
     private String title;
@@ -58,13 +54,13 @@ public class Task {
     public void startTask() {
         if (employeeInCharge == null) {
             throw new InvalidTaskOperationException(
-                    "flowops.domain.Task cannot be started without an employee in charge"
+                    "Task cannot be started without an employee in charge"
             );
         }
 
         if (currentStatus != Status.PENDING) {
             throw new InvalidTaskOperationException(
-                    "flowops.domain.Task cannot be started because it is not pending"
+                    "Task cannot be started because it is not pending"
             );
         }
 
@@ -74,7 +70,7 @@ public class Task {
     public void completeTask() {
         if (currentStatus != Status.IN_PROGRESS) {
             throw new InvalidTaskOperationException(
-                    "flowops.domain.Task can only be completed when it is in progress"
+                    "Task can only be completed when it is in progress"
             );
         }
 
@@ -136,7 +132,7 @@ public class Task {
     public void approveReview() {
         if (review != RevisionStatus.PENDING_REVIEW) {
             throw new InvalidTaskOperationException(
-                    "flowops.domain.Task review must be pending before it can be approved"
+                    "Task review must be pending before it can be approved"
             );
         }
 
@@ -146,60 +142,10 @@ public class Task {
     public void rejectReview() {
         if (review != RevisionStatus.PENDING_REVIEW) {
             throw new InvalidTaskOperationException(
-                    "flowops.domain.Task review must be pending before it can be rejected"
+                    "Task review must be pending before it can be rejected"
             );
         }
 
         this.review = RevisionStatus.REJECTED;
-    }
-
-    public static class TaskManager {
-        private List<Task> tasks = new ArrayList<>();
-
-
-        public void addTask(Task task) {
-            tasks.add(task);
-        }
-
-        public List<Task> getOverdueTasks() {
-            List<Task> overdueTasks = new ArrayList<>();
-            for (Task task : tasks) {
-                if (task.isLate()) {
-                    overdueTasks.add(task);
-                }
-            }
-            return overdueTasks;
-        }
-
-        public List<Task> getTasksByStatus(Status status) {
-            List<Task> filteredTasks = new ArrayList<>();
-            for (Task task : tasks) {
-                if (task.getCurrentStatus() == status) {
-                    filteredTasks.add(task);
-                }
-            }
-            return filteredTasks;
-        }
-
-        public List<Task> getTasksByPriority(Priority priority) {
-            List<Task> filteredTasks = new ArrayList<>();
-            for (Task task : tasks) {
-                if (task.getPriority() == priority) {
-                    filteredTasks.add(task);
-                }
-            }
-            return filteredTasks;
-        }
-
-        public int countTasksByStatus(Status status){
-            int count = 0;
-
-            for (Task task : tasks){
-                if (task.getCurrentStatus() == status){
-                    count ++;
-                }
-            } return count;
-        }
-
     }
 }
