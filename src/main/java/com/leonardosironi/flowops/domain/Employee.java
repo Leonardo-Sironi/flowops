@@ -1,4 +1,4 @@
-package flowops.domain;
+package com.leonardosironi.flowops.domain;
 
 public class Employee {
     private int id;

@@ -1,10 +1,10 @@
-package flowops.domain;
+package com.leonardosironi.flowops.domain;
 
-public class Manager extends Employee {
+public class Manager extends Employee{
+
     public Manager(int id, String name, String email) {
         super(id, name, email);
     }
-
     public void approveTask(Task task) {
         task.approveReview();
     }

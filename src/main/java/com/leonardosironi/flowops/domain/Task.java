@@ -1,11 +1,10 @@
-package flowops.domain;
+package com.leonardosironi.flowops.domain;
 
-import flowops.exception.InvalidTaskOperationException;
+import com.leonardosironi.flowops.exception.InvalidTaskOperationException;
 
 import java.time.LocalDate;
 
 public class Task {
-
     private String title;
     private String description;
     private LocalDate deadline;
@@ -13,6 +12,10 @@ public class Task {
     private Status currentStatus;
     private Employee employeeInCharge;
     private RevisionStatus review;
+    private Long id;
+
+    public Task() {
+    }
 
     public Task(String title, String description, LocalDate deadline, Priority priority) {
         this.title = title;
@@ -35,9 +38,9 @@ public class Task {
         return deadline;
     }
 
-    public Priority getPriority() {
-        return priority;
-    }
+    public Priority getPriority() { return priority; }
+
+    public Long getId() { return id; }
 
     public Status getCurrentStatus() {
         return currentStatus;
@@ -51,78 +54,67 @@ public class Task {
         return review;
     }
 
+    public void setId(Long id) { this.id = id; }
+
     public void startTask() {
         if (employeeInCharge == null) {
             throw new InvalidTaskOperationException(
-                    "Task cannot be started without an employee in charge"
+                    "Task must have an employee assigned before starting"
             );
         }
 
         if (currentStatus != Status.PENDING) {
             throw new InvalidTaskOperationException(
-                    "Task cannot be started because it is not pending"
+                    "Only pending tasks can be started"
             );
         }
 
-        this.currentStatus = Status.IN_PROGRESS;
-    }
-
-    public void completeTask() {
-        if (currentStatus != Status.IN_PROGRESS) {
-            throw new InvalidTaskOperationException(
-                    "Task can only be completed when it is in progress"
-            );
-        }
-
-        this.currentStatus = Status.COMPLETED;
-        this.review = RevisionStatus.PENDING_REVIEW;
-    }
-
-    public void cancelTask() {
-        if (currentStatus == Status.COMPLETED) {
-            throw new InvalidTaskOperationException(
-                    "A completed task cannot be canceled"
-            );
-        }
-
-        this.currentStatus = Status.CANCELED;
-    }
-
-    public void changeDeadline(LocalDate newDeadline) {
-        if (currentStatus == Status.COMPLETED) {
-            throw new InvalidTaskOperationException(
-                    "Cannot change deadline of a completed task"
-            );
-        }
-
-        if (currentStatus == Status.CANCELED) {
-            throw new InvalidTaskOperationException(
-                    "Cannot change deadline of a canceled task"
-            );
-        }
-
-        this.deadline = newDeadline;
+        currentStatus = Status.IN_PROGRESS;
     }
 
     public void assignEmployee(Employee employee) {
-        if (currentStatus == Status.COMPLETED) {
+        if (currentStatus == Status.COMPLETED || currentStatus == Status.CANCELED) {
             throw new InvalidTaskOperationException(
-                    "Cannot assign an employee to a completed task"
-            );
-        }
-
-        if (currentStatus == Status.CANCELED) {
-            throw new InvalidTaskOperationException(
-                    "Cannot assign an employee to a canceled task"
+                    "Cannot assign employee to a completed or canceled task"
             );
         }
 
         this.employeeInCharge = employee;
     }
 
+    public void completeTask() {
+        if (currentStatus != Status.IN_PROGRESS) {
+            throw new InvalidTaskOperationException(
+                    "Only tasks in progress can be completed"
+            );
+        }
+
+        currentStatus = Status.COMPLETED;
+        review = RevisionStatus.PENDING_REVIEW;
+    }
+
+    public void cancelTask() {
+        if (currentStatus == Status.COMPLETED) {
+            throw new InvalidTaskOperationException(
+                    "Completed tasks cannot be canceled"
+            );
+        }
+
+        currentStatus = Status.CANCELED;
+    }
+
+    public void changeDeadline(LocalDate newDeadline) {
+        if (currentStatus == Status.COMPLETED || currentStatus == Status.CANCELED) {
+            throw new InvalidTaskOperationException(
+                    "Cannot change deadline of a completed or canceled task"
+            );
+        }
+
+        this.deadline = newDeadline;
+    }
+
     public boolean isLate() {
-        if (currentStatus == Status.COMPLETED
-                || currentStatus == Status.CANCELED) {
+        if (currentStatus == Status.COMPLETED || currentStatus == Status.CANCELED) {
             return false;
         }
 
@@ -132,20 +124,20 @@ public class Task {
     public void approveReview() {
         if (review != RevisionStatus.PENDING_REVIEW) {
             throw new InvalidTaskOperationException(
-                    "Task review must be pending before it can be approved"
+                    "Only tasks pending review can be approved"
             );
         }
 
-        this.review = RevisionStatus.APPROVED;
+        review = RevisionStatus.APPROVED;
     }
 
     public void rejectReview() {
         if (review != RevisionStatus.PENDING_REVIEW) {
             throw new InvalidTaskOperationException(
-                    "Task review must be pending before it can be rejected"
+                    "Only tasks pending review can be rejected"
             );
         }
 
-        this.review = RevisionStatus.REJECTED;
+        review = RevisionStatus.REJECTED;
     }
 }
