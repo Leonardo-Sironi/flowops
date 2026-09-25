@@ -1,228 +1,441 @@
 # FlowOps
 
-O **FlowOps** é uma plataforma de automação de processos operacionais e gerenciamento de workflows, criada com o objetivo de reduzir trabalho manual, melhorar a visibilidade das tarefas e automatizar fluxos internos de empresas.
+![Java](https://img.shields.io/badge/Java-21+-orange)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.x-brightgreen)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-blue)
+![JPA](https://img.shields.io/badge/Spring%20Data-JPA-green)
+![Hibernate](https://img.shields.io/badge/Hibernate-ORM-yellow)
+![Flyway](https://img.shields.io/badge/Flyway-Migrations-red)
 
-> O código, nomes de classes, métodos, variáveis, commits, documentação técnica e futuras estruturas de API e banco de dados são desenvolvidos em inglês para aumentar a familiaridade com o inglês técnico utilizado no desenvolvimento de software.
+FlowOps is a Business Process Automation and Workflow Management Platform built with Java and Spring Boot.
 
----
-
-## Objetivo do projeto
-
-Muitas empresas ainda organizam processos operacionais usando:
-
-- planilhas;
-- e-mails;
-- aplicativos de mensagens;
-- acompanhamento manual;
-- sistemas separados.
-
-Isso pode gerar problemas como:
-
-- tarefas esquecidas;
-- atrasos;
-- retrabalho;
-- falta de visibilidade;
-- dificuldade para acompanhar produtividade;
-- dificuldade para identificar gargalos;
-- processos lentos e pouco padronizados.
-
-O FlowOps nasce com a proposta de centralizar e, progressivamente, automatizar esses processos.
+The project is being developed incrementally to apply backend development concepts in a real application, evolving from pure Java and object-oriented programming to a persistent REST API backed by PostgreSQL.
 
 ---
 
-## Fluxo principal
+## Problem
 
-Um fluxo do sistema pode funcionar assim:
+Many teams still manage internal processes through spreadsheets, emails, messaging apps and manual controls.
 
-Solicitação recebida  
-→ Tarefa criada  
-→ Funcionário responsável atribuído  
-→ Tarefa iniciada  
-→ Prazo acompanhado  
-→ Tarefa concluída  
-→ Revisão do gerente  
-→ Aprovada ou rejeitada
+This can result in:
 
----
+- delayed tasks;
+- forgotten responsibilities;
+- duplicated work;
+- lack of visibility over deadlines;
+- difficulty tracking task ownership;
+- poor visibility over workflow status.
 
-## Estado atual do projeto
-
-A primeira versão foi desenvolvida em **Java puro**, com foco em revisar e consolidar conceitos de **Programação Orientada a Objetos** antes da evolução para Spring Boot.
-
-Atualmente o projeto já possui:
-
-- criação de tarefas;
-- atribuição de funcionários;
-- controle de status;
-- prioridades;
-- controle de prazo;
-- detecção de tarefas atrasadas;
-- fluxo de revisão por gerente;
-- aprovação e rejeição de tarefas;
-- filtros por status;
-- filtros por prioridade;
-- métricas básicas;
-- exceptions personalizadas;
-- abstração de notificações;
-- simulação de notificação por e-mail;
-- gerenciamento de múltiplas tarefas com collections.
+FlowOps aims to centralize these processes in a structured backend application.
 
 ---
 
-## Conceitos de POO aplicados
+## Current Features
 
-Nesta primeira etapa foram utilizados conceitos como:
+The current version supports:
 
-- Classes e objetos
-- Atributos e métodos
-- Construtores
-- Encapsulamento
-- Herança
-- Polimorfismo
-- Interfaces
-- Enums
-- Collections
-- Exceptions
-- Relacionamento entre objetos
-- Separação de responsabilidades
-
----
-
-## Estrutura atual
-
-flowops  
-├── domain  
-│   ├── Task  
-│   ├── Employee  
-│   ├── Manager  
-│   ├── Status  
-│   ├── Priority  
-│   └── RevisionStatus  
-│  
-├── service  
-│   ├── TaskService  
-│   ├── TaskManager  
-│   ├── NotificationService  
-│   └── EmailNotificationService  
-│  
-├── exception  
-│   └── InvalidTaskOperationException  
-│  
-└── Main
+- create tasks;
+- list tasks;
+- find tasks by ID;
+- assign employees to tasks;
+- start tasks;
+- complete tasks;
+- cancel tasks;
+- approve task reviews;
+- reject task reviews;
+- create employees;
+- validate API requests;
+- handle business and resource errors;
+- persist application data in PostgreSQL;
+- version the database schema with Flyway.
 
 ---
 
-## Tecnologias atuais
+## Architecture
+
+FlowOps currently follows a layered architecture:
+
+```text
+HTTP Request
+    ↓
+Controller
+    ↓
+Service
+    ↓
+Repository
+    ↓
+Spring Data JPA / Hibernate
+    ↓
+PostgreSQL
+```
+
+### Responsibilities
+
+**Controller**
+
+Receives HTTP requests and exposes REST endpoints.
+
+**Service**
+
+Coordinates application operations, business flows and transactions.
+
+**Domain**
+
+Contains the main entities and business rules.
+
+**Repository**
+
+Provides database access through Spring Data JPA.
+
+**DTO**
+
+Controls the data received and returned by the API.
+
+**Exception Handler**
+
+Centralizes HTTP error handling.
+
+---
+
+## Technologies
 
 - Java
-- Programação Orientada a Objetos
-- Java Collections
-- Java Time API
+- Spring Boot
+- Spring Web
+- Spring Data JPA
+- Hibernate
+- PostgreSQL
+- Flyway
+- Jakarta Validation
+- Maven
 - Git
 - GitHub
 
 ---
 
-## Roadmap
+## Persistence
 
-O FlowOps será evoluído gradualmente.
+The first version of FlowOps stored tasks only in application memory using a Java `List`.
 
-A ideia é adicionar novas tecnologias conforme o projeto realmente precisar delas.
+That meant all data was lost whenever the application restarted.
 
-Java + POO  
-→ Spring Boot  
-→ REST API  
-→ PostgreSQL + SQL  
-→ Spring Data JPA + Hibernate  
-→ DTOs + Validation  
-→ Global Exception Handling  
-→ Swagger / OpenAPI  
-→ JUnit + Mockito  
-→ Spring Security + JWT  
-→ Flyway  
-→ Docker + Docker Compose  
-→ RabbitMQ  
-→ GitHub Actions  
-→ Deploy / Cloud  
-→ Performance + Observability
+The project now uses PostgreSQL for persistent storage.
 
----
+```text
+Before
 
-## Tecnologias previstas
+TaskService
+    ↓
+List<Task>
+    ↓
+Application memory
+```
 
-Ao longo da evolução do projeto, pretendo trabalhar com:
+```text
+Current
 
-- Java
-- Spring Boot
-- Spring Web
-- REST
-- PostgreSQL
-- SQL
-- Spring Data JPA
-- Hibernate
-- DTOs
-- Validation
-- Swagger / OpenAPI
-- JUnit 5
-- Mockito
-- Testcontainers
-- Spring Security
-- JWT
-- Flyway
-- Docker
-- Docker Compose
-- RabbitMQ
-- GitHub Actions
-- Cloud
-- Performance testing
-- Observability
+TaskService
+    ↓
+TaskRepository
+    ↓
+Spring Data JPA
+    ↓
+Hibernate
+    ↓
+PostgreSQL
+```
+
+Spring Data repositories provide database access while Hibernate handles the object-relational mapping between Java entities and database tables.
 
 ---
 
-## Estratégia de aprendizado
+## Entities
 
-O FlowOps também está sendo utilizado como projeto prático de revisão e evolução técnica.
+### Task
 
-A abordagem é:
+A task contains information such as:
 
-**Aprender → Aplicar → Construir → Testar → Melhorar → Evoluir**
+- title;
+- description;
+- deadline;
+- priority;
+- current status;
+- review status;
+- assigned employee.
 
-A ideia é evitar estudar tecnologias isoladamente sem aplicação prática.
+### Employee
 
-Cada conceito aprendido é aplicado diretamente no projeto.
+An employee can be assigned as responsible for tasks.
 
----
+The relationship is modeled with JPA using `@ManyToOne`.
 
-## Objetivo profissional
+```java
+@ManyToOne
+private Employee employeeInCharge;
+```
 
-O projeto faz parte da minha preparação para conquistar minha primeira oportunidade profissional como:
+In the database, this relationship is represented through a foreign key:
 
-- Desenvolvedor Java Júnior
-- Desenvolvedor Backend Júnior
-- Estagiário Java
-- Estagiário Backend
-- Desenvolvedor de Software
+```text
+task.employee_in_charge_id
+        ↓
+employee.id
+```
 
-O objetivo final é evoluir o FlowOps para uma aplicação backend completa, capaz de demonstrar conhecimento prático em:
-
-- Java
-- APIs REST
-- banco de dados
-- arquitetura
-- testes
-- segurança
-- mensageria
-- containers
-- CI/CD
-- performance
-- desenvolvimento backend
-
-Mais do que apenas utilizar tecnologias, a meta é entender e conseguir explicar as decisões técnicas utilizadas durante o desenvolvimento.
+This allows multiple tasks to reference the same employee.
 
 ---
 
-## Status
+## REST API
 
-🚧 Projeto em desenvolvimento.
+### Tasks
 
-A primeira etapa em **Java + POO** está concluída e o próximo passo será iniciar a evolução do FlowOps utilizando **Spring Boot**.
+```http
+GET /tasks
+```
+
+Returns all tasks.
+
+```http
+GET /tasks/{id}
+```
+
+Returns a task by ID.
+
+```http
+POST /tasks
+```
+
+Creates a new task.
+
+Example request:
+
+```json
+{
+  "title": "Implement persistence",
+  "description": "Integrate FlowOps with PostgreSQL",
+  "deadline": "2026-10-01",
+  "priority": "HIGH"
+}
+```
+
+Assign an employee:
+
+```http
+PATCH /tasks/{taskId}/assign/{employeeId}
+```
+
+Start a task:
+
+```http
+PATCH /tasks/{id}/start
+```
+
+Complete a task:
+
+```http
+PATCH /tasks/{id}/complete
+```
+
+Approve a task review:
+
+```http
+PATCH /tasks/{id}/approve
+```
+
+Reject a task review:
+
+```http
+PATCH /tasks/{id}/reject
+```
+
+Cancel a task:
+
+```http
+PATCH /tasks/{id}/cancel
+```
+
+### Employees
+
+```http
+POST /employees
+```
+
+Creates a new employee.
+
+Example request:
+
+```json
+{
+  "name": "Example Employee",
+  "email": "employee@example.com"
+}
+```
+
+---
+
+## Validation
+
+FlowOps uses Jakarta Validation to validate API input using annotations such as `@NotBlank`, `@NotNull` and `@Email`.
+
+Invalid requests are handled centrally and return HTTP `400 Bad Request`.
+
+---
+
+## Exception Handling
+
+The application uses centralized exception handling with `@RestControllerAdvice`.
+
+Current examples include:
+
+- task not found → `404 Not Found`;
+- employee not found → `404 Not Found`;
+- invalid task operation → `400 Bad Request`;
+- validation errors → `400 Bad Request`.
+
+---
+
+## Transactions
+
+Operations that modify existing entities use `@Transactional`.
+
+Example:
+
+```java
+@Transactional
+public TaskResponse startTask(Long id) {
+    Task task = findTaskById(id);
+
+    task.startTask();
+
+    return toResponse(task);
+}
+```
+
+Because the entity is managed by Hibernate inside the transaction, Hibernate can detect changes automatically through its dirty checking mechanism.
+
+This means an explicit `save()` is not required for every update to an already managed entity.
+
+---
+
+## Database Migrations
+
+The database schema is versioned using Flyway.
+
+Current migrations:
+
+```text
+V1__create_initial_schema.sql
+V2__add_task_indexes.sql
+```
+
+Flyway is responsible for evolving the database structure.
+
+Hibernate is configured to validate the schema instead of changing it automatically:
+
+```properties
+spring.jpa.hibernate.ddl-auto=validate
+```
+
+The project also disables Open Session in View:
+
+```properties
+spring.jpa.open-in-view=false
+```
+
+This keeps persistence access more explicit and avoids database queries being performed during response rendering.
+
+---
+
+## Database Optimization
+
+Indexes were added to fields expected to be frequently queried:
+
+```text
+employee_in_charge_id
+current_status
+deadline
+```
+
+These indexes prepare the database for common FlowOps operations such as:
+
+- finding tasks assigned to an employee;
+- filtering tasks by status;
+- finding tasks based on deadlines.
+
+---
+
+## Project Evolution
+
+FlowOps is being developed in stages.
+
+```text
+Java + Object-Oriented Programming
+            ↓
+Spring Boot REST API
+            ↓
+DTOs
+            ↓
+Validation
+            ↓
+Global Exception Handling
+            ↓
+Spring Data JPA
+            ↓
+Hibernate
+            ↓
+PostgreSQL
+            ↓
+Entity Relationships
+            ↓
+Transactions
+            ↓
+Flyway Migrations
+```
+
+### Planned Evolution
+
+```text
+Automated Tests
+        ↓
+Spring Security + JWT
+        ↓
+Docker
+        ↓
+Messaging
+        ↓
+CI/CD
+        ↓
+Cloud Deployment
+```
+
+---
+
+## Learning Goals
+
+FlowOps is also being used as a practical backend development project to reinforce concepts such as:
+
+- object-oriented programming;
+- REST API design;
+- layered architecture;
+- dependency injection;
+- DTOs;
+- validation;
+- exception handling;
+- relational databases;
+- JPA;
+- Hibernate;
+- transactions;
+- database migrations.
+
+---
+
+## Author
+
+**Leonardo Sironi**
+
+GitHub:  
+https://github.com/Leonardo-Sironi
+
+LinkedIn:  
+https://www.linkedin.com/in/leonardo-sironi/
