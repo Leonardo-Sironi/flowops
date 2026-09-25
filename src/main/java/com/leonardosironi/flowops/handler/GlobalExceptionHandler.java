@@ -1,5 +1,6 @@
 package com.leonardosironi.flowops.handler;
 
+import com.leonardosironi.flowops.exception.EmployeeNotFoundException;
 import com.leonardosironi.flowops.exception.InvalidTaskOperationException;
 import com.leonardosironi.flowops.exception.TaskNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -51,5 +52,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(errors);
+    }
+    @ExceptionHandler(EmployeeNotFoundException.class)
+    public ResponseEntity<String> handleEmployeeNotFound(
+            EmployeeNotFoundException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(exception.getMessage());
     }
 }

@@ -1,6 +1,5 @@
 package com.leonardosironi.flowops.controller;
 
-import com.leonardosironi.flowops.domain.Employee;
 import com.leonardosironi.flowops.dto.CreateTaskRequest;
 import com.leonardosironi.flowops.dto.TaskResponse;
 import com.leonardosironi.flowops.service.TaskService;
@@ -42,12 +41,12 @@ public class TaskController {
                 .body(task);
     }
 
-    @PatchMapping("/{id}/assign")
+    @PatchMapping("/{id}/assign/{employeeId}")
     public TaskResponse assignEmployee(
             @PathVariable Long id,
-            @RequestBody Employee employee
+            @PathVariable Long employeeId
     ) {
-        return taskService.assignEmployee(id, employee);
+        return taskService.assignEmployee(id, employeeId);
     }
 
     @PatchMapping("/{id}/start")

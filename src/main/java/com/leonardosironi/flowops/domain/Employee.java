@@ -1,17 +1,29 @@
 package com.leonardosironi.flowops.domain;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+@Entity
 public class Employee {
-    private int id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String name;
     private String email;
 
-    public Employee(int id, String name, String email) {
-        this.id = id;
+    protected Employee() {
+    }
+
+    public Employee(String name, String email) {
         this.name = name;
         this.email = email;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 

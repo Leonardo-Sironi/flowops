@@ -1,20 +1,31 @@
 package com.leonardosironi.flowops.domain;
 
 import com.leonardosironi.flowops.exception.InvalidTaskOperationException;
-
 import java.time.LocalDate;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.ManyToOne;
 
+import jakarta.persistence.*;
+
+@Entity
 public class Task {
     private String title;
     private String description;
     private LocalDate deadline;
-    private Priority priority;
-    private Status currentStatus;
+    @ManyToOne
     private Employee employeeInCharge;
+    @Enumerated(EnumType.STRING)
+    private Priority priority;
+    @Enumerated(EnumType.STRING)
+    private Status currentStatus;
+    @Enumerated(EnumType.STRING)
     private RevisionStatus review;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    public Task() {
+    protected Task() {
     }
 
     public Task(String title, String description, LocalDate deadline, Priority priority) {
