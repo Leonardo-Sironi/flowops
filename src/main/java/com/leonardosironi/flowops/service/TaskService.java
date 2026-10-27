@@ -1,3 +1,4 @@
+
 package com.leonardosironi.flowops.service;
 
 import com.leonardosironi.flowops.domain.Employee;
@@ -9,6 +10,8 @@ import com.leonardosironi.flowops.exception.EmployeeNotFoundException;
 import com.leonardosironi.flowops.exception.TaskNotFoundException;
 import com.leonardosironi.flowops.repository.EmployeeRepository;
 import com.leonardosironi.flowops.repository.TaskRepository;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +44,6 @@ public class TaskService {
 
     public TaskResponse getTaskById(Long id) {
         Task task = findTaskById(id);
-
         return toResponse(task);
     }
 
@@ -55,7 +57,6 @@ public class TaskService {
         );
 
         Task savedTask = taskRepository.save(task);
-
         return toResponse(savedTask);
     }
 
@@ -69,53 +70,77 @@ public class TaskService {
                 );
 
         task.assignEmployee(employee);
-
         return toResponse(task);
     }
 
     @Transactional
-    public TaskResponse startTask(Long id) {
+    public TaskResponse startTask(
+            Long id,
+            Authentication authentication
+    ) {
         Task task = findTaskById(id);
+        validateTaskAccess(task, authentication);
 
         task.startTask();
-
         return toResponse(task);
     }
 
     @Transactional
-    public TaskResponse completeTask(Long id) {
+    public TaskResponse completeTask(
+            Long id,
+            Authentication authentication
+    ) {
         Task task = findTaskById(id);
+        validateTaskAccess(task, authentication);
 
         task.completeTask();
-
         return toResponse(task);
     }
 
     @Transactional
     public TaskResponse approveTask(Long id) {
         Task task = findTaskById(id);
-
         task.approveReview();
-
         return toResponse(task);
     }
 
     @Transactional
     public TaskResponse rejectTask(Long id) {
         Task task = findTaskById(id);
-
         task.rejectReview();
-
         return toResponse(task);
     }
 
     @Transactional
     public TaskResponse cancelTask(Long id) {
         Task task = findTaskById(id);
-
         task.cancelTask();
-
         return toResponse(task);
+    }
+
+    private void validateTaskAccess(
+            Task task,
+            Authentication authentication
+    ) {
+        boolean isManager = authentication.getAuthorities()
+                .stream()
+                .anyMatch(authority ->
+                        authority.getAuthority().equals("ROLE_MANAGER")
+                );
+
+        if (isManager) {
+            return;
+        }
+
+        Employee assignedEmployee = task.getEmployeeInCharge();
+
+        if (assignedEmployee == null
+                || !assignedEmployee.getEmail()
+                .equalsIgnoreCase(authentication.getName())) {
+            throw new AccessDeniedException(
+                    "You can only modify tasks assigned to you"
+            );
+        }
     }
 
     private Task findTaskById(Long id) {
@@ -126,7 +151,6 @@ public class TaskService {
     }
 
     private TaskResponse toResponse(Task task) {
-
         EmployeeResponse employeeResponse = null;
 
         if (task.getEmployeeInCharge() != null) {

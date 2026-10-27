@@ -1,3 +1,4 @@
+
 package com.leonardosironi.flowops.controller;
 
 import com.leonardosironi.flowops.domain.*;
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -26,6 +29,13 @@ class TaskControllerTest {
 
     private MockMvc mockMvc;
     private TaskService taskService;
+
+    private Authentication createAuthentication() {
+        return new UsernamePasswordAuthenticationToken(
+                "employee@example.com",
+                "password"
+        );
+    }
 
     private TaskResponse createResponse() {
         return new TaskResponse(
@@ -58,8 +68,7 @@ class TaskControllerTest {
 
         mockMvc.perform(get("/tasks"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title")
-                        .value("Test task"));
+                .andExpect(jsonPath("$[0].title").value("Test task"));
     }
 
     @Test
@@ -69,18 +78,14 @@ class TaskControllerTest {
 
         mockMvc.perform(get("/tasks/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title")
-                        .value("Test task"))
-                .andExpect(jsonPath("$.currentStatus")
-                        .value("PENDING"));
+                .andExpect(jsonPath("$.title").value("Test task"))
+                .andExpect(jsonPath("$.currentStatus").value("PENDING"));
     }
 
     @Test
     void shouldReturn404WhenTaskNotFound() throws Exception {
         when(taskService.getTaskById(99L))
-                .thenThrow(
-                        new TaskNotFoundException("Task not found")
-                );
+                .thenThrow(new TaskNotFoundException("Task not found"));
 
         mockMvc.perform(get("/tasks/99"))
                 .andExpect(status().isNotFound())
@@ -105,8 +110,7 @@ class TaskControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.title")
-                        .value("Test task"));
+                .andExpect(jsonPath("$.title").value("Test task"));
 
         verify(taskService).createTask(any());
     }
@@ -143,24 +147,30 @@ class TaskControllerTest {
 
     @Test
     void shouldStartTask() throws Exception {
-        when(taskService.startTask(1L))
+        Authentication authentication = createAuthentication();
+
+        when(taskService.startTask(eq(1L), any(Authentication.class)))
                 .thenReturn(createResponse());
 
-        mockMvc.perform(patch("/tasks/1/start"))
+        mockMvc.perform(patch("/tasks/1/start")
+                        .principal(authentication))
                 .andExpect(status().isOk());
 
-        verify(taskService).startTask(1L);
+        verify(taskService).startTask(1L, authentication);
     }
 
     @Test
     void shouldCompleteTask() throws Exception {
-        when(taskService.completeTask(1L))
+        Authentication authentication = createAuthentication();
+
+        when(taskService.completeTask(eq(1L), any(Authentication.class)))
                 .thenReturn(createResponse());
 
-        mockMvc.perform(patch("/tasks/1/complete"))
+        mockMvc.perform(patch("/tasks/1/complete")
+                        .principal(authentication))
                 .andExpect(status().isOk());
 
-        verify(taskService).completeTask(1L);
+        verify(taskService).completeTask(1L, authentication);
     }
 
     @Test
@@ -198,14 +208,16 @@ class TaskControllerTest {
 
     @Test
     void shouldReturn400ForInvalidOperation() throws Exception {
-        when(taskService.startTask(1L))
+        Authentication authentication = createAuthentication();
+
+        when(taskService.startTask(eq(1L), any(Authentication.class)))
                 .thenThrow(new InvalidTaskOperationException(
                         "Invalid task operation"
                 ));
 
-        mockMvc.perform(patch("/tasks/1/start"))
+        mockMvc.perform(patch("/tasks/1/start")
+                        .principal(authentication))
                 .andExpect(status().isBadRequest())
-                .andExpect(content()
-                        .string("Invalid task operation"));
+                .andExpect(content().string("Invalid task operation"));
     }
 }
