@@ -1,3 +1,4 @@
+
 package com.leonardosironi.flowops.service;
 
 import com.leonardosironi.flowops.domain.*;
@@ -9,6 +10,9 @@ import com.leonardosironi.flowops.repository.TaskRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,6 +26,13 @@ class TaskServiceTest {
     private TaskRepository taskRepository;
     private EmployeeRepository employeeRepository;
     private TaskService taskService;
+
+    private Authentication createAuthentication(String email) {
+        return new UsernamePasswordAuthenticationToken(
+                email,
+                "password"
+        );
+    }
 
     private Task createTask() {
         return new Task(
@@ -86,7 +97,11 @@ class TaskServiceTest {
         when(taskRepository.findById(1L))
                 .thenReturn(Optional.of(task));
 
-        TaskResponse result = taskService.startTask(1L);
+        Authentication authentication =
+                createAuthentication("leonardo@example.com");
+
+        TaskResponse result =
+                taskService.startTask(1L, authentication);
 
         assertEquals(Status.IN_PROGRESS, result.getCurrentStatus());
     }
@@ -96,9 +111,31 @@ class TaskServiceTest {
         when(taskRepository.findById(1L))
                 .thenReturn(Optional.of(createTask()));
 
+        Authentication authentication =
+                createAuthentication("leonardo@example.com");
+
         assertThrows(
-                RuntimeException.class,
-                () -> taskService.startTask(1L)
+                AccessDeniedException.class,
+                () -> taskService.startTask(1L, authentication)
+        );
+    }
+
+    @Test
+    void shouldNotStartTaskAssignedToAnotherEmployee() {
+        Task task = createTask();
+        task.assignEmployee(
+                new Employee("Maria", "maria@example.com")
+        );
+
+        when(taskRepository.findById(1L))
+                .thenReturn(Optional.of(task));
+
+        Authentication authentication =
+                createAuthentication("leonardo@example.com");
+
+        assertThrows(
+                AccessDeniedException.class,
+                () -> taskService.startTask(1L, authentication)
         );
     }
 
